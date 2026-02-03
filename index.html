@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Valentine 💖</title>
 
-<!-- Cute fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -16,70 +15,59 @@ body {
     overflow: hidden;
 }
 
-/* Center card */
 .card {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: white;
-    padding: 40px 50px;
+    padding: 40px 55px;
     border-radius: 25px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    z-index: 2;
+    z-index: 5;
 }
 
 h1 {
     font-family: 'Pacifico', cursive;
-    font-size: 32px;
+    font-size: 34px;
     color: #ff4d6d;
     margin: 0;
 }
 
-/* Buttons */
 button {
-    padding: 12px 28px;
+    padding: 12px 30px;
     font-size: 18px;
     border: none;
     border-radius: 30px;
     cursor: pointer;
     position: absolute;
-    z-index: 1;
+    z-index: 2;
+    transition: transform 0.2s;
 }
 
 #yes {
-    background-color: #ff4d6d;
+    background: #ff4d6d;
     color: white;
 }
 
 #no {
-    background-color: #888;
+    background: #888;
     color: white;
 }
 
-/* Hearts */
 .heart {
     position: fixed;
     bottom: -20px;
-    font-size: 26px;
+    font-size: 28px;
     animation: floatUp 4s linear infinite;
 }
 
 @keyframes floatUp {
-    from {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
     to {
         transform: translateY(-100vh) scale(1.6);
         opacity: 0;
     }
-}
-
-/* Sad animation */
-.sad {
-    animation: shake 0.5s infinite;
 }
 
 @keyframes shake {
@@ -95,7 +83,7 @@ button {
 <body>
 
 <div class="card" id="card">
-    <h1>Hi Dibbbbu, will you be my Valentine? 💕</h1>
+    <h1>Dibbbbbuuuuuu, will you be my Valentine? 💕</h1>
 </div>
 
 <button id="yes">Yes ❤️</button>
@@ -106,15 +94,12 @@ const yesBtn = document.getElementById("yes");
 const noBtn = document.getElementById("no");
 const card = document.getElementById("card");
 
-// Initial placement
-placeButton(yesBtn);
-placeButton(noBtn);
+let yesAttempts = 0;
 
-// Keep buttons away from text card
+// -------------------- POSITIONING (avoid card) --------------------
 function placeButton(btn) {
     const padding = 20;
     const cardRect = card.getBoundingClientRect();
-
     let x, y, safe;
 
     do {
@@ -122,38 +107,93 @@ function placeButton(btn) {
         x = Math.random() * (window.innerWidth - btn.offsetWidth - padding);
         y = Math.random() * (window.innerHeight - btn.offsetHeight - padding);
 
-        // Check overlap with card
         if (
             x < cardRect.right &&
             x + btn.offsetWidth > cardRect.left &&
             y < cardRect.bottom &&
             y + btn.offsetHeight > cardRect.top
-        ) {
-            safe = false;
-        }
+        ) safe = false;
     } while (!safe);
 
     btn.style.left = x + "px";
     btn.style.top = y + "px";
 }
 
-// NO button: always runs 😈
-noBtn.addEventListener("mouseenter", () => placeButton(noBtn));
-noBtn.addEventListener("touchstart", () => placeButton(noBtn));
+// Initial positions
+placeButton(yesBtn);
+placeButton(noBtn);
 
-// YES button: always runs 😈
-yesBtn.addEventListener("mouseenter", () => placeButton(yesBtn));
-yesBtn.addEventListener("touchstart", () => placeButton(yesBtn));
+// -------------------- CHAOTIC NO 😈 --------------------
+noBtn.addEventListener("mouseenter", chaoticNo);
+noBtn.addEventListener("touchstart", chaoticNo);
 
-// YES button: playful (sometimes moves)
-//yesBtn.addEventListener("mouseenter", () => {
-//    if (Math.random() < 0.35) placeButton(yesBtn);
-//});
-//yesBtn.addEventListener("touchstart", () => {
-//    if (Math.random() < 0.35) placeButton(yesBtn);
-//});
+function chaoticNo() {
+    placeButton(noBtn);
 
-// YES clicked 💖
+    noBtn.style.transform =
+        `scale(${0.6 + Math.random()*0.4}) rotate(${Math.random()*20-10}deg)`;
+
+    if (Math.random() < 0.25) spawnFakeNo();
+
+    // screen shake
+    document.body.style.animation = "shake 0.3s";
+    setTimeout(() => document.body.style.animation = "", 300);
+}
+
+// Fake NO clones
+function spawnFakeNo() {
+    const fake = document.createElement("button");
+    fake.innerText = "No 💔";
+    fake.style.position = "absolute";
+    fake.style.padding = "10px 22px";
+    fake.style.borderRadius = "30px";
+    fake.style.border = "none";
+    fake.style.background = "#bbb";
+    fake.style.color = "#444";
+    fake.style.left = Math.random()*window.innerWidth + "px";
+    fake.style.top = Math.random()*window.innerHeight + "px";
+    document.body.appendChild(fake);
+
+    setTimeout(() => fake.remove(), 600);
+}
+
+// -------------------- CHAOTIC YES 😏 --------------------
+yesBtn.addEventListener("mouseenter", chaoticYes);
+yesBtn.addEventListener("touchstart", chaoticYes);
+
+function chaoticYes() {
+    yesAttempts++;
+
+    // 30% chance to freeze (fake hope)
+    if (Math.random() < 0.3) return;
+
+    placeButton(yesBtn);
+
+    // YES grows over time
+    const scale = Math.min(1 + yesAttempts * 0.08, 2);
+    yesBtn.style.transform = `scale(${scale})`;
+
+    // After enough attempts, YES calms down
+    if (yesAttempts > 7) {
+        yesBtn.removeEventListener("mouseenter", chaoticYes);
+        yesBtn.removeEventListener("touchstart", chaoticYes);
+    }
+}
+
+// Magnetic YES (near-click = win)
+document.addEventListener("click", (e) => {
+    const r = yesBtn.getBoundingClientRect();
+    if (
+        e.clientX > r.left - 60 &&
+        e.clientX < r.right + 60 &&
+        e.clientY > r.top - 60 &&
+        e.clientY < r.bottom + 60
+    ) {
+        yesBtn.click();
+    }
+});
+
+// -------------------- YES CLICK 💖 --------------------
 yesBtn.addEventListener("click", () => {
     document.body.innerHTML = `
         <div style="
@@ -164,39 +204,37 @@ yesBtn.addEventListener("click", () => {
             align-items:center;
             text-align:center;
             font-family:'Pacifico',cursive;
-            font-size:34px;
+            font-size:36px;
             color:#ff4d6d;
             background:linear-gradient(135deg,#ff9a9e,#fad0c4);">
-            Yayyy! 💖🥰<br><br>
-            I knew you’d say YES! ❤️
+            YAYYY!!! 💖🥰<br><br>
+            You survived the chaos ❤️
         </div>
     `;
     startHearts();
 });
 
-// NO clicked 😭 (just in case)
+// -------------------- NO CLICK (JUST IN CASE 😭) --------------------
 noBtn.addEventListener("click", () => {
     document.body.innerHTML = `
-        <div class="sad" style="
+        <div style="
             height:100vh;
             display:flex;
-            flex-direction:column;
             justify-content:center;
             align-items:center;
-            text-align:center;
             font-family:'Pacifico',cursive;
             font-size:32px;
             color:#555;
-            background:linear-gradient(135deg,#d3d3d3,#f0f0f0);">
-            Oh nooo 💔😢<br><br>
-            That hurts...
+            animation:shake 0.4s infinite;
+            background:#eee;">
+            Oh nooo 💔😭
         </div>
     `;
 });
 
-// Hearts animation
+// -------------------- HEARTS 💕 --------------------
 function startHearts() {
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 60; i++) {
         setTimeout(createHeart, i * 120);
     }
 }
@@ -206,9 +244,8 @@ function createHeart() {
     heart.className = "heart";
     heart.innerHTML = "❤️";
     heart.style.left = Math.random() * window.innerWidth + "px";
-    heart.style.animationDuration = (3 + Math.random() * 2) + "s";
+    heart.style.animationDuration = (3 + Math.random()*2) + "s";
     document.body.appendChild(heart);
-
     setTimeout(() => heart.remove(), 5000);
 }
 </script>
