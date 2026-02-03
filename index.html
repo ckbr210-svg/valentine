@@ -3,47 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <title>Valentine 💖</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 <style>
 body {
-    height: 100vh;
     margin: 0;
-    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-    font-family: 'Poppins', sans-serif;
     overflow: hidden;
+    font-family: 'Pacifico', cursive;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
 }
 
-.card {
+#card {
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: white;
-    padding: 40px 55px;
-    border-radius: 25px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    z-index: 5;
-}
-
-h1 {
-    font-family: 'Pacifico', cursive;
     font-size: 34px;
     color: #ff4d6d;
-    margin: 0;
+    z-index: 10;
 }
 
 button {
-    padding: 12px 30px;
-    font-size: 18px;
+    position: absolute;
+    padding: 14px 28px;
+    font-size: 20px;
     border: none;
     border-radius: 30px;
     cursor: pointer;
-    position: absolute;
-    z-index: 2;
-    transition: transform 0.2s;
 }
 
 #yes {
@@ -52,39 +38,25 @@ button {
 }
 
 #no {
-    background: #888;
-    color: white;
+    background: #ccc;
 }
 
-.heart {
+.heart, .confetti {
     position: fixed;
-    bottom: -20px;
-    font-size: 28px;
-    animation: floatUp 4s linear infinite;
+    font-size: 22px;
+    animation: float 4s linear forwards;
 }
 
-@keyframes floatUp {
-    to {
-        transform: translateY(-100vh) scale(1.6);
-        opacity: 0;
-    }
-}
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    50% { transform: translateX(8px); }
-    75% { transform: translateX(-8px); }
-    100% { transform: translateX(0); }
+@keyframes float {
+    from { transform: translateY(100vh); opacity: 1; }
+    to { transform: translateY(-100px); opacity: 0; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="card" id="card">
-    <h1>Dibbbbbuuuuuu, will you be my Valentine? 💕</h1>
-</div>
+<div id="card">XYZ, will you be my Valentine? 💘</div>
 
 <button id="yes">Yes ❤️</button>
 <button id="no">No 💔</button>
@@ -94,150 +66,156 @@ const yesBtn = document.getElementById("yes");
 const noBtn = document.getElementById("no");
 const card = document.getElementById("card");
 
-let yesAttempts = 0;
-let yesUnlocked = false;
+let attempts = 0;
+let unlocked = false;
+let fakeUnlocked = false;
 
-// -------------------- SAFE POSITION --------------------
-function placeButton(btn) {
-    const cardRect = card.getBoundingClientRect();
-    let x, y, safe;
+const sound = new Audio("https://www.myinstants.com/media/sounds/pop.mp3");
 
+// ---------- SAFE RANDOM POSITION ----------
+function place(btn) {
+    const r = card.getBoundingClientRect();
+    let x, y, ok;
     do {
-        safe = true;
-        x = Math.random() * (window.innerWidth - btn.offsetWidth - 20);
-        y = Math.random() * (window.innerHeight - btn.offsetHeight - 20);
-
+        ok = true;
+        x = Math.random() * (window.innerWidth - btn.offsetWidth);
+        y = Math.random() * (window.innerHeight - btn.offsetHeight);
         if (
-            x < cardRect.right &&
-            x + btn.offsetWidth > cardRect.left &&
-            y < cardRect.bottom &&
-            y + btn.offsetHeight > cardRect.top
-        ) safe = false;
-
-    } while (!safe);
+            x < r.right &&
+            x + btn.offsetWidth > r.left &&
+            y < r.bottom &&
+            y + btn.offsetHeight > r.top
+        ) ok = false;
+    } while (!ok);
 
     btn.style.left = x + "px";
     btn.style.top = y + "px";
 }
 
-placeButton(yesBtn);
-placeButton(noBtn);
+place(yesBtn);
+place(noBtn);
 
-// -------------------- NO = PURE CHAOS 😈 --------------------
-noBtn.addEventListener("mouseenter", dodgeNo);
-noBtn.addEventListener("touchstart", dodgeNo);
-
-function dodgeNo() {
-    placeButton(noBtn);
+// ---------- NO CHAOS ----------
+noBtn.onmouseenter = noBtn.ontouchstart = () => {
+    place(noBtn);
     noBtn.style.transform =
         `scale(${0.6 + Math.random()*0.4}) rotate(${Math.random()*20-10}deg)`;
+};
+
+// ---------- YES TEASING ----------
+yesBtn.onmouseenter = yesBtn.ontouchstart = () => {
+    if (unlocked) return;
+
+    attempts++;
+    sound.play();
+    if (navigator.vibrate) navigator.vibrate(80);
+
+    // FAKE UNLOCK 😈
+    if (attempts === 8 && !fakeUnlocked) {
+        fakeUnlocked = true;
+        yesBtn.innerText = "Yes ❤️";
+        yesBtn.style.transform = "scale(1.3)";
+        setTimeout(() => place(yesBtn), 600);
+        return;
+    }
+
+    place(yesBtn);
+    yesBtn.style.transform = `scale(${1 + attempts*0.07})`;
+    yesBtn.style.boxShadow = `0 0 ${attempts*4}px rgba(255,77,109,.7)`;
+
+    if (attempts >= 10) unlockYes();
+};
+
+function unlockYes() {
+    unlocked = true;
+    yesBtn.innerText = "YES 💖";
+    yesBtn.style.transform = "scale(1.3)";
+    yesBtn.style.boxShadow = "0 0 30px rgba(255,77,109,1)";
 }
 
-// -------------------- YES = TEASER MODE 😏 --------------------
-yesBtn.addEventListener("mouseenter", teaseYes);
-yesBtn.addEventListener("touchstart", teaseYes);
-
-function teaseYes() {
-    if (yesUnlocked) return;
-
-    yesAttempts++;
-
-    placeButton(yesBtn);
-
-    // Visual teasing
-    const scale = 1 + yesAttempts * 0.07;
-    yesBtn.style.transform = `scale(${Math.min(scale, 2)})`;
-    yesBtn.style.boxShadow = `0 0 ${yesAttempts * 4}px rgba(255,77,109,0.6)`;
-
-    // Emotional damage text
-    yesBtn.innerText = yesAttempts < 5
-        ? "Almost 😏"
-        : yesAttempts < 9
-        ? "Try harder 😈"
-        : "ONE MORE 👀";
-
-    // Unlock after 10 attempts
-    if (yesAttempts >= 10) unlockYes();
-}
-
-// -------------------- LOCKED YES CLICK --------------------
-yesBtn.addEventListener("click", (e) => {
-    if (!yesUnlocked) {
+// ---------- BLOCK EARLY CLICKS ----------
+yesBtn.onclick = (e) => {
+    if (!unlocked) {
         e.preventDefault();
         yesBtn.innerText = "Not yet 😜";
         return;
     }
-});
+    celebration();
+};
 
-// -------------------- UNLOCK YES 💖 --------------------
-function unlockYes() {
-    yesUnlocked = true;
-    yesBtn.innerText = "Yes ❤️";
-    yesBtn.style.transform = "scale(1.2)";
-    yesBtn.style.boxShadow = "0 0 25px rgba(255,77,109,0.9)";
-
-    yesBtn.removeEventListener("mouseenter", teaseYes);
-    yesBtn.removeEventListener("touchstart", teaseYes);
-}
-
-// -------------------- YES SUCCESS 💘 --------------------
-yesBtn.addEventListener("click", () => {
-    if (!yesUnlocked) return;
-
+// ---------- CELEBRATION ----------
+function celebration() {
     document.body.innerHTML = `
-        <div style="
-            height:100vh;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            align-items:center;
-            text-align:center;
-            font-family:'Pacifico',cursive;
-            font-size:36px;
-            color:#ff4d6d;
-            background:linear-gradient(135deg,#ff9a9e,#fad0c4);">
-            YaYYYY 💖🥰<br><br>
-            I knew You'll say Yes ❤️
-        </div>
+    <div style="
+        height:100vh;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        text-align:center;
+        background:linear-gradient(135deg,#ff9a9e,#fad0c4);
+        font-size:32px;
+        color:#ff4d6d;">
+        You said YES 💖🥰<br><br>
+        <button id="letterBtn" style="
+            margin-top:20px;
+            padding:14px 26px;
+            font-size:20px;
+            border:none;
+            border-radius:30px;
+            background:#ff4d6d;
+            color:white;">
+            Read My Letter 💌
+        </button>
+    </div>
     `;
+
     startHearts();
-});
+    startConfetti();
 
-// -------------------- NO CLICK (RARE SAD PATH 😭) --------------------
-noBtn.addEventListener("click", () => {
-    document.body.innerHTML = `
-        <div style="
-            height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            font-family:'Pacifico',cursive;
-            font-size:32px;
-            color:#555;
-            animation:shake 0.4s infinite;
-            background:#eee;">
-            Oh nooo 💔😭
-        </div>
-    `;
-});
-
-// -------------------- HEARTS 💕 --------------------
-function startHearts() {
-    for (let i = 0; i < 60; i++) {
-        setTimeout(createHeart, i * 120);
-    }
+    document.getElementById("letterBtn").onclick = showLetter;
 }
 
-function createHeart() {
-    const heart = document.createElement("div");
-    heart.className = "heart";
-    heart.innerHTML = "❤️";
-    heart.style.left = Math.random() * window.innerWidth + "px";
-    heart.style.animationDuration = (3 + Math.random()*2) + "s";
-    document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 5000);
+// ---------- LETTER ----------
+function showLetter() {
+    document.body.innerHTML = `
+    <div style="
+        padding:40px;
+        font-size:26px;
+        line-height:1.6;
+        color:#ff4d6d;
+        background:#fff5f7;
+        height:100vh;">
+        Dear You ❤️,<br><br>
+        I may not always say what I feel out loud,
+        but every little thing about you makes my world brighter.
+        Your smile, your presence, your existence —
+        it all means more to me than I can explain.<br><br>
+        This page, this chaos, this silly game —
+        it’s just a tiny reflection of how hard I fell for you.
+        And I’d choose you, every single time 💖<br><br>
+        Yours,
+        <br>✨ Me
+    </div>
+    `;
+}
+
+// ---------- HEARTS + CONFETTI ----------
+function startHearts() {
+    for (let i=0;i<40;i++) setTimeout(()=>spawn("❤️","heart"),i*120);
+}
+function startConfetti() {
+    for (let i=0;i<40;i++) setTimeout(()=>spawn("🎊","confetti"),i*100);
+}
+function spawn(char, cls) {
+    const d = document.createElement("div");
+    d.className = cls;
+    d.innerText = char;
+    d.style.left = Math.random()*window.innerWidth + "px";
+    d.style.animationDuration = 3 + Math.random()*2 + "s";
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),5000);
 }
 </script>
-
 </body>
 </html>
