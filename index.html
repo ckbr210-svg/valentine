@@ -95,7 +95,7 @@ button {
 <body>
 
 <div class="card" id="card">
-    <h1>XYZ, will you be my Valentine? 💕</h1>
+    <h1>Hi Dibbbbu, will you be my Valentine? 💕</h1>
 </div>
 
 <button id="yes">Yes ❤️</button>
@@ -141,13 +141,17 @@ function placeButton(btn) {
 noBtn.addEventListener("mouseenter", () => placeButton(noBtn));
 noBtn.addEventListener("touchstart", () => placeButton(noBtn));
 
+// YES button: always runs 😈
+yesBtn.addEventListener("mouseenter", () => placeButton(noBtn));
+yesBtn.addEventListener("touchstart", () => placeButton(noBtn));
+
 // YES button: playful (sometimes moves)
-yesBtn.addEventListener("mouseenter", () => {
-    if (Math.random() < 0.35) placeButton(yesBtn);
-});
-yesBtn.addEventListener("touchstart", () => {
-    if (Math.random() < 0.35) placeButton(yesBtn);
-});
+//yesBtn.addEventListener("mouseenter", () => {
+//    if (Math.random() < 0.35) placeButton(yesBtn);
+//});
+//yesBtn.addEventListener("touchstart", () => {
+//    if (Math.random() < 0.35) placeButton(yesBtn);
+//});
 
 // YES clicked 💖
 yesBtn.addEventListener("click", () => {
