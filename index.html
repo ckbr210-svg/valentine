@@ -25,13 +25,17 @@ body {
 }
 
 button {
-    position: absolute;
     padding: 14px 28px;
     font-size: 20px;
     border: none;
     border-radius: 30px;
     cursor: pointer;
     transition: transform 0.2s;
+}
+
+/* ONLY chaos buttons are absolute */
+#yes, #no {
+    position: absolute;
 }
 
 #yes { background:#ff4d6d; color:white; }
@@ -185,15 +189,17 @@ function celebration() {
         </div>
 
         <button id="letterBtn" style="
-            padding:16px 34px;
-            font-size:22px;
-            border:none;
-            border-radius:40px;
-            background:#ff4d6d;
-            color:white;
-            cursor:pointer;
-            box-shadow:0 8px 20px rgba(255,77,109,.4);
+        position: relative;
+        padding:16px 34px;
+        font-size:22px;
+        border:none;
+        border-radius:40px;
+        background:#ff4d6d;
+        color:white;
+        cursor:pointer;
+        box-shadow:0 8px 20px rgba(255,77,109,.4);
         ">
+
             Read My Letter 💌
         </button>
 
