@@ -1,103 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Valentine 💕</title>
+<meta charset="UTF-8">
+<title>Valentine 💖</title>
 
-    <style>
-        body {
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
-        }
+<style>
+body {
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+}
 
-        .card {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+.card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
 
-        h1 {
-            font-size: 28px;
-            margin-bottom: 30px;
-            color: #ff4d6d;
-        }
+h1 {
+    color: #ff4d6d;
+    margin-bottom: 30px;
+}
 
-        .buttons {
-            position: relative;
-            height: 120px;
-        }
+button {
+    padding: 12px 28px;
+    font-size: 18px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    position: absolute;
+}
 
-        button {
-            padding: 12px 28px;
-            font-size: 18px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-        }
+#yes {
+    background-color: #ff4d6d;
+    color: white;
+}
 
-        #yes {
-            background-color: #ff4d6d;
-            color: white;
-            margin-right: 20px;
-        }
+#no {
+    background-color: #999;
+    color: white;
+}
+.heart {
+    position: fixed;
+    bottom: -20px;
+    font-size: 24px;
+    animation: floatUp 4s linear infinite;
+}
 
-        #no {
-            background-color: #999;
-            color: white;
-            position: absolute;
-        }
-    </style>
+@keyframes floatUp {
+    from {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100vh) scale(1.5);
+        opacity: 0;
+    }
+}
+</style>
 </head>
+
 <body>
 
 <div class="card">
-    <h1>XYZ, will you be my Valentine? 💖</h1>
-
-    <div class="buttons">
-        <button id="yes" onclick="yesClicked()">Yes ❤️</button>
-        <button id="no" onmouseover="moveNo()">No 💔</button>
-    </div>
+    <h1>Dibbbbbu, will you be my Valentine? 💕</h1>
 </div>
 
+<button id="yes">Yes ❤️</button>
+<button id="no">No 💔</button>
+
 <script>
-    function moveNo() {
-        const noBtn = document.getElementById("no");
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
 
-        const maxX = window.innerWidth - noBtn.offsetWidth;
-        const maxY = window.innerHeight - noBtn.offsetHeight;
+// initial positions
+moveButton(yesBtn);
+moveButton(noBtn);
 
-        const randX = Math.random() * maxX;
-        const randY = Math.random() * maxY;
+function moveButton(btn) {
+    const padding = 20;
+    const maxX = window.innerWidth - btn.offsetWidth - padding;
+    const maxY = window.innerHeight - btn.offsetHeight - padding;
 
-        noBtn.style.left = randX + "px";
-        noBtn.style.top = randY + "px";
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+
+    btn.style.left = x + "px";
+    btn.style.top = y + "px";
+}
+
+// NO = impossible 😈
+noBtn.addEventListener("mouseenter", () => moveButton(noBtn));
+noBtn.addEventListener("touchstart", () => moveButton(noBtn));
+
+// YES = playful 😏
+yesBtn.addEventListener("mouseenter", () => {
+    if (Math.random() < 0.4) moveButton(yesBtn);
+});
+yesBtn.addEventListener("touchstart", () => {
+    if (Math.random() < 0.4) moveButton(yesBtn);
+});
+
+yesBtn.addEventListener("click", () => {
+    document.body.innerHTML = `
+        <div style="
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            text-align:center;
+            font-size:32px;
+            color:#ff4d6d;
+            font-family:Segoe UI;
+            background:linear-gradient(135deg,#ff9a9e,#fad0c4);">
+            Yayyy! 💖🥰<br><br>
+            I knew you’d say YES! ❤️
+        </div>
+    `;
+    startHearts();
+});
+
+function startHearts() {
+    for (let i = 0; i < 40; i++) {
+        setTimeout(createHeart, i * 150);
     }
+}
 
-    function yesClicked() {
-        document.body.innerHTML = `
-            <div style="
-                height:100vh;
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                font-size:32px;
-                color:#ff4d6d;
-                font-family:Segoe UI;
-                background:linear-gradient(135deg,#ff9a9e,#fad0c4);
-                text-align:center;">
-                Yayyy! 💕🥰 <br><br>
-                I knew you’d say YES! ❤️
-            </div>
-        `;
-    }
+function createHeart() {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "❤️";
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.animationDuration = (3 + Math.random() * 2) + "s";
+    document.body.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 5000);
+}
 </script>
 
 </body>
