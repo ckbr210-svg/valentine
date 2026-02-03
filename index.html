@@ -95,17 +95,17 @@ const noBtn = document.getElementById("no");
 const card = document.getElementById("card");
 
 let yesAttempts = 0;
+let yesUnlocked = false;
 
-// -------------------- POSITIONING (avoid card) --------------------
+// -------------------- SAFE POSITION --------------------
 function placeButton(btn) {
-    const padding = 20;
     const cardRect = card.getBoundingClientRect();
     let x, y, safe;
 
     do {
         safe = true;
-        x = Math.random() * (window.innerWidth - btn.offsetWidth - padding);
-        y = Math.random() * (window.innerHeight - btn.offsetHeight - padding);
+        x = Math.random() * (window.innerWidth - btn.offsetWidth - 20);
+        y = Math.random() * (window.innerHeight - btn.offsetHeight - 20);
 
         if (
             x < cardRect.right &&
@@ -113,88 +113,77 @@ function placeButton(btn) {
             y < cardRect.bottom &&
             y + btn.offsetHeight > cardRect.top
         ) safe = false;
+
     } while (!safe);
 
     btn.style.left = x + "px";
     btn.style.top = y + "px";
 }
 
-// Initial positions
 placeButton(yesBtn);
 placeButton(noBtn);
 
-// -------------------- CHAOTIC NO 😈 --------------------
-noBtn.addEventListener("mouseenter", chaoticNo);
-noBtn.addEventListener("touchstart", chaoticNo);
+// -------------------- NO = PURE CHAOS 😈 --------------------
+noBtn.addEventListener("mouseenter", dodgeNo);
+noBtn.addEventListener("touchstart", dodgeNo);
 
-function chaoticNo() {
+function dodgeNo() {
     placeButton(noBtn);
-
     noBtn.style.transform =
         `scale(${0.6 + Math.random()*0.4}) rotate(${Math.random()*20-10}deg)`;
-
-    if (Math.random() < 0.25) spawnFakeNo();
-
-    // screen shake
-    document.body.style.animation = "shake 0.3s";
-    setTimeout(() => document.body.style.animation = "", 300);
 }
 
-// Fake NO clones
-function spawnFakeNo() {
-    const fake = document.createElement("button");
-    fake.innerText = "No 💔";
-    fake.style.position = "absolute";
-    fake.style.padding = "10px 22px";
-    fake.style.borderRadius = "30px";
-    fake.style.border = "none";
-    fake.style.background = "#bbb";
-    fake.style.color = "#444";
-    fake.style.left = Math.random()*window.innerWidth + "px";
-    fake.style.top = Math.random()*window.innerHeight + "px";
-    document.body.appendChild(fake);
+// -------------------- YES = TEASER MODE 😏 --------------------
+yesBtn.addEventListener("mouseenter", teaseYes);
+yesBtn.addEventListener("touchstart", teaseYes);
 
-    setTimeout(() => fake.remove(), 600);
-}
+function teaseYes() {
+    if (yesUnlocked) return;
 
-// -------------------- CHAOTIC YES 😏 --------------------
-yesBtn.addEventListener("mouseenter", chaoticYes);
-yesBtn.addEventListener("touchstart", chaoticYes);
-
-function chaoticYes() {
     yesAttempts++;
-
-    // 30% chance to freeze (fake hope)
-    if (Math.random() < 0.3) return;
 
     placeButton(yesBtn);
 
-    // YES grows over time
-    const scale = Math.min(1 + yesAttempts * 0.08, 2);
-    yesBtn.style.transform = `scale(${scale})`;
+    // Visual teasing
+    const scale = 1 + yesAttempts * 0.07;
+    yesBtn.style.transform = `scale(${Math.min(scale, 2)})`;
+    yesBtn.style.boxShadow = `0 0 ${yesAttempts * 4}px rgba(255,77,109,0.6)`;
 
-    // After enough attempts, YES calms down
-    if (yesAttempts > 7) {
-        yesBtn.removeEventListener("mouseenter", chaoticYes);
-        yesBtn.removeEventListener("touchstart", chaoticYes);
-    }
+    // Emotional damage text
+    yesBtn.innerText = yesAttempts < 5
+        ? "Almost 😏"
+        : yesAttempts < 9
+        ? "Try harder 😈"
+        : "ONE MORE 👀";
+
+    // Unlock after 10 attempts
+    if (yesAttempts >= 10) unlockYes();
 }
 
-// Magnetic YES (near-click = win)
-document.addEventListener("click", (e) => {
-    const r = yesBtn.getBoundingClientRect();
-    if (
-        e.clientX > r.left - 60 &&
-        e.clientX < r.right + 60 &&
-        e.clientY > r.top - 60 &&
-        e.clientY < r.bottom + 60
-    ) {
-        yesBtn.click();
+// -------------------- LOCKED YES CLICK --------------------
+yesBtn.addEventListener("click", (e) => {
+    if (!yesUnlocked) {
+        e.preventDefault();
+        yesBtn.innerText = "Not yet 😜";
+        return;
     }
 });
 
-// -------------------- YES CLICK 💖 --------------------
+// -------------------- UNLOCK YES 💖 --------------------
+function unlockYes() {
+    yesUnlocked = true;
+    yesBtn.innerText = "Yes ❤️";
+    yesBtn.style.transform = "scale(1.2)";
+    yesBtn.style.boxShadow = "0 0 25px rgba(255,77,109,0.9)";
+
+    yesBtn.removeEventListener("mouseenter", teaseYes);
+    yesBtn.removeEventListener("touchstart", teaseYes);
+}
+
+// -------------------- YES SUCCESS 💘 --------------------
 yesBtn.addEventListener("click", () => {
+    if (!yesUnlocked) return;
+
     document.body.innerHTML = `
         <div style="
             height:100vh;
@@ -207,14 +196,14 @@ yesBtn.addEventListener("click", () => {
             font-size:36px;
             color:#ff4d6d;
             background:linear-gradient(135deg,#ff9a9e,#fad0c4);">
-            YAYYY!!! 💖🥰<br><br>
-            You survived the chaos ❤️
+            YOU DID IT 💖🥰<br><br>
+            Love unlocked ❤️
         </div>
     `;
     startHearts();
 });
 
-// -------------------- NO CLICK (JUST IN CASE 😭) --------------------
+// -------------------- NO CLICK (RARE SAD PATH 😭) --------------------
 noBtn.addEventListener("click", () => {
     document.body.innerHTML = `
         <div style="
